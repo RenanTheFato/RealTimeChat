@@ -1,7 +1,8 @@
+import fastifyWebsocket from '@fastify/websocket'
+import fastifyCors from '@fastify/cors'
+import { Server } from 'socket.io'
 import { fastify } from 'fastify'
 import { routes } from './routes'
-import fastifyCors from '@fastify/cors'
-import fastifyWebsocket from '@fastify/websocket'
 import dotenv from 'dotenv'
 
 dotenv.config()
@@ -13,6 +14,16 @@ async function start() {
   await server.register(fastifyCors)
   await server.register(fastifyWebsocket)
   await server.register(routes)
+
+  const io = new Server(server.server, {
+    cors: {
+      origin: '*'
+    }
+  })
+
+  io.on('connection', (socket) => {
+    console.log('oi', socket.id)
+  })
 
   try {
     await server.listen({
