@@ -74,15 +74,13 @@
 }
 
 .scroll-bar::-webkit-scrollbar{
-  width: 10px;
+  width: 5px;
 }
 
 .scroll-bar::-webkit-scrollbar-track{
   background-color: #ffffff96;
-  border-radius: 999px;
 }
 
 .scroll-bar::-webkit-scrollbar-thumb{
   background-color: #8d8d8d;
-  border-radius: 999px;
 }
