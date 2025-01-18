@@ -1,6 +1,6 @@
-import { ChatFooter } from "./ChatFooter";
-import { ChatHeader } from "./ChatHeader";
-import { ChatMain } from "./ChatMain";
+import { ChatFooter } from "./ChatFooter"
+import { ChatHeader } from "./ChatHeader"
+import { ChatMain } from "./ChatMain"
 
 export function ChatContainer(){
   return(

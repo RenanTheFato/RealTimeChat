@@ -7,7 +7,7 @@ interface MessageProps {
 export function Message({ isSent, message, showTail = true }: MessageProps) {
   return (
     <div className={`w-full flex ${isSent ? 'justify-end' : 'justify-start'}`}>
-      <div className={`relative w-fit max-w-[484px] h-auto p-2 rounded-lg
+      <div className={`relative w-fit max-w-72 h-auto p-2 rounded-lg md:max-w-[484px]
         ${isSent ? 'bg-sky-400 hover:bg-sky-500' : 'bg-gray-200 hover:bg-gray-300'}
         ${showTail ? `before:content-[''] before:absolute before:top-0 before:border-t-[10px] before:border-r-[10px] before:border-l-[10px] 
           ${isSent

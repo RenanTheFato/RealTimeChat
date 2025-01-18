@@ -1,8 +1,8 @@
-import { Message } from "../messages/Message";
+import { Message } from "../messages/Message"
 
 export function ChatMain() {
   return (
-    <main className="flex-1 bg-off-white overflow-y-auto p-2 space-y-1 scroll-bar">
+    <main className="flex-1 bg-off-white overflow-y-auto p-2 space-y-2 scroll-bar md:space-y-1">
 
       <Message
         isSent={true}
