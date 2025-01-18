@@ -3,7 +3,7 @@ import { UserCard } from "./UserCard";
 
 export function MessagesMenu() {
   return (
-    <div className="w-[420px] h-full flex flex-col items-center bg-white border-r-2 border-gray-400/70 select-none">
+    <div className="hidden w-[420px] h-full md:flex flex-col items-center bg-white border-r-2 border-gray-400/70 select-none">
 
       <div className="flex-1 overflow-y-auto overflow-x-hidden scroll-bar border-l-2 border-gray-400/30">
         <UserCard />

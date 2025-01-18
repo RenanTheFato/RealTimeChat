@@ -2,7 +2,7 @@ import { User2 } from "lucide-react";
 
 export function ChatHeader() {
   return (
-    <header className="w-full h-16 flex flex-row bg-gray-300/50 px-2 space-x-1">
+    <header className="w-full h-16 flex flex-row border-b-2 border-gray-400/30 bg-gray-300/50 px-2 space-x-1">
 
       <div className="flex items-center m-2">
         <div className="w-12 h-12 flex items-center justify-center bg-slate-600/75 rounded-full">
