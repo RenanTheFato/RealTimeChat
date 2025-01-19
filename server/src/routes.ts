@@ -16,4 +16,8 @@ export async function routes(fastify: FastifyInstance) {
   fastify.get("/user", { preHandler: AuthMiddleware }, async(req: FastifyRequest, rep: FastifyReply) => {
     return new GetUserController().handle(req, rep)
   }) 
+
+  fastify.get("/chat/:chatId/messages", { preHandler: AuthMiddleware }, async(req: FastifyRequest, rep: FastifyReply) => {
+
+  })
 }

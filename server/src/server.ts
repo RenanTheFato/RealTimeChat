@@ -3,6 +3,7 @@ import fastifyCors from '@fastify/cors'
 import { Server } from 'socket.io'
 import { fastify } from 'fastify'
 import { routes } from './routes'
+import { WebSocketServer } from './socket/socket'
 import dotenv from 'dotenv'
 
 dotenv.config()
@@ -21,9 +22,8 @@ async function start() {
     }
   })
 
-  io.on('connection', (socket) => {
-    console.log('oi', socket.id)
-  })
+  const wsServer = new WebSocketServer()
+  wsServer.start(io)
 
   try {
     await server.listen({

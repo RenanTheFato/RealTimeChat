@@ -8,10 +8,42 @@ datasource db {
 }
 
 model Users {
-  id         String @id @default(uuid())
-  contact_id String    @unique
-  name       String
-  password   String
+  id           String   @id @default(uuid())
+  contact_id   String   @unique
+  name         String
+  password     String
+  last_seen_at DateTime @default(now())
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  sent_chats     Chats[] @relation("FromUser")
+  received_chats Chats[] @relation("ToUser")
 
   @@map("users")
+}
+
+model Chats {
+  id           String   @id @default(uuid())
+  from_contact String
+  to_contact   String
+  created_at   DateTime @default(now())
+
+  from_user Users @relation("FromUser", fields: [from_contact], references: [contact_id], onDelete: Cascade)
+  to_user   Users @relation("ToUser", fields: [to_contact], references: [contact_id], onDelete: Cascade)
+
+  messages Messages[]
+
+  @@map("chats")
+}
+
+model Messages {
+  id      String   @id @default(uuid())
+  content String
+  send_by String
+  chat_id String
+  send_at DateTime @default(now())
+
+  chat Chats @relation(fields: [chat_id], references: [id], onDelete: Cascade)
+
+  @@map("messages")
 }
