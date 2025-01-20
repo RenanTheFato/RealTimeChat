@@ -46,7 +46,7 @@ export function ChatFooter({ onSendMessage }: ChatFooterProps) {
     target.style.height = target.scrollHeight + 'px'
   }
 
-  function handleKeyPress(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+  function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
       handleSendMessage()
@@ -75,7 +75,7 @@ export function ChatFooter({ onSendMessage }: ChatFooterProps) {
         ref={textareaRef}
         value={message}
         onChange={(e) => setMessage(e.target.value)}
-        onKeyPress={handleKeyPress}
+        onKeyDown={handleKeyDown}
         className="w-full max-h-32 p-2 outline-none border-none font-outfit rounded-sm text-black/75 placeholder:text-black/60 resize-none overflow-y-scroll scroll-bar"
         placeholder="Type your message..."
         rows={1}

@@ -1,7 +1,7 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { GetChatMessagesService } from "../../services/messages/GetMessagesService";
 
-interface GetMessagesRequest {
+export interface GetMessagesRequest {
   Params: {
     chatId: string;
   };
@@ -10,9 +10,9 @@ interface GetMessagesRequest {
 export class GetMessagesController {
   async handle(req: FastifyRequest<GetMessagesRequest>, rep: FastifyReply) {
     const { chatId } = req.params
-    const getChatMessagesService = new GetChatMessagesService()
-
+    
     try {
+      const getChatMessagesService = new GetChatMessagesService()
       const messages = await getChatMessagesService.execute({ chatId })
       return rep.status(200).send(messages)
     } catch (error) {

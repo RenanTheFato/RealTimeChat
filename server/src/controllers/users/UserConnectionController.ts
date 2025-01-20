@@ -1,9 +1,9 @@
-import { Socket } from "socket.io";
-import { prisma } from "../../lib/prisma";
+import { Socket } from "socket.io"
+import { prisma } from "../../lib/prisma"
 
 export class UserConnectionController {
   async handleConnect(socket: Socket, userId: string, onlineUsers: Map<string, string>) {
-    onlineUsers.set(userId, socket.id);
+    onlineUsers.set(userId, socket.id)
       
     await prisma.users.update({
       where: {
@@ -14,16 +14,16 @@ export class UserConnectionController {
       }
     })
 
-    socket.broadcast.emit('user_online', userId);
+    socket.broadcast.emit('user_online', userId)
   }
 
   async handleDisconnect(socket: Socket, onlineUsers: Map<string, string>) {
     const userId = [...onlineUsers.entries()]
-      .find(([_, socketId]) => socketId === socket.id)?.[0];
+      .find(([_, socketId]) => socketId === socket.id)?.[0]
     
     if (userId) {
-      onlineUsers.delete(userId);
-      socket.broadcast.emit('user_offline', userId);
+      onlineUsers.delete(userId)
+      socket.broadcast.emit('user_offline', userId)
     }
   }
 }
