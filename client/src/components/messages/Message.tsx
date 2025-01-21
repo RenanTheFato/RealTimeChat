@@ -19,5 +19,5 @@ export function Message({ isSent, message, showTail = true }: MessageProps) {
         </p>
       </div>
     </div>
-  );
+  )
 }

@@ -1,7 +1,7 @@
 import { prisma } from "../../lib/prisma"
 
 interface MessagesProps {
-  chatId: string;
+  chatId: string
 }
 
 export class GetChatMessagesService {

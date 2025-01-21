@@ -1,4 +1,4 @@
-import { User2 } from "lucide-react";
+import { User2 } from "lucide-react"
 
 export function ChatHeader() {
   return (

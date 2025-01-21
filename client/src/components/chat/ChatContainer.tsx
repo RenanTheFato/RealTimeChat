@@ -38,6 +38,7 @@ export function ChatContainer({ user_id, chat_id }: ChatContainerProps) {
     }
 
     const token = localStorage.getItem('authToken')
+    console.log('Using auth token:', token?.substring(0, 10) + '...')
     if (!token) {
       setError('Authentication token not found')
       setIsLoading(false)
@@ -48,7 +49,7 @@ export function ChatContainer({ user_id, chat_id }: ChatContainerProps) {
 
     const socket = io(wsURL, {
       auth: { token },
-      transports: ['websocket', 'polling'],
+      transports: ['websocket'],
       reconnection: true,
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,
@@ -59,6 +60,7 @@ export function ChatContainer({ user_id, chat_id }: ChatContainerProps) {
 
     socket.on('connect', () => {
       console.log('Socket connected successfully')
+      console.log('Socket connected successfully with ID:', socket.id)
       socket.emit('user_connected', user_id)
       socket.emit('join_chat', chat_id)
     })
@@ -73,6 +75,10 @@ export function ChatContainer({ user_id, chat_id }: ChatContainerProps) {
       console.error('Socket connection error:', error)
       setError('Failed to connect to chat server')
       console.error(error.message)
+    })
+
+    socket.io.on("reconnect_attempt", (attempt) => {
+      console.log("Attempting to reconnect:", attempt)
     })
 
     socket.on('disconnect', (reason) => {

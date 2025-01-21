@@ -21,17 +21,11 @@ async function start() {
     credentials: true,
   })
 
-  await server.register(fastifyWebsocket, {
-    options: {
-      maxPayload: 1048576,
-      clientTracking: true,
-    },
-  })
-
+  await server.register(fastifyWebsocket)
   await server.register(routes)
 
   const wsServer = http.createServer()
-
+  
   const io = new Server(wsServer, {
     cors: {
       origin: process.env.FRONTEND_URL || "http://localhost:5173",
@@ -41,13 +35,13 @@ async function start() {
     transports: ["websocket", "polling"],
     pingTimeout: 60000,
     pingInterval: 25000,
+    allowEIO3: true, 
   })
 
-  const webSocketServerServer = new WebSocketServer()
-  webSocketServerServer.start(io)
+  const webSocketServer = new WebSocketServer()
+  webSocketServer.start(io)
 
   const wsPort = 8080
-
   wsServer.listen(wsPort, () => {
     console.log(`WebSocket server running on port ${wsPort}`)
   })
@@ -57,9 +51,9 @@ async function start() {
     const host = "0.0.0.0"
 
     await server.listen({ port, host })
-    console.log(`Server Running on port ${port}!`)
+    console.log(`HTTP Server Running on port ${port}!`)
   } catch (error) {
-    console.error("Error to start server:", error)
+    console.error("Error starting HTTP server:", error)
     process.exit(1)
   }
 }

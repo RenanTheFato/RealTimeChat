@@ -3,9 +3,9 @@ import { CreateMessageService } from "../../services/messages/CreateMessageServi
 import { prisma } from "../../lib/prisma"
 
 interface MessagesProps {
-  content: string;
-  send_by: string;
-  chat_id: string;
+  content: string,
+  send_by: string,
+  chat_id: string,
 }
 
 export class CreateMessageController {

@@ -17,7 +17,7 @@ export class SinginUserController{
       const user = await singinUserService.execute({ contact_id, password })
       return rep.status(200).send({user})
     } catch (error) {
-      console.error(error);
+      console.error(error)
       return rep.status(401).send({ message: 'Credentials failed' })
     }
   }
