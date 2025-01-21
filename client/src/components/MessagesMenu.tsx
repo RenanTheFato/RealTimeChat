@@ -24,10 +24,11 @@ interface User {
   last_seen_at: string
 }
 
-export function MessagesMenu() {
+export function MessagesMenu({ onSelectChat }: {onSelectChat: (chatId: string) => void}) {
   const [chats, setChats] = useState<Chat[]>([])
   const [currentUser, setCurrentUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [contactId, setContactId] = useState('')
 
   useEffect(() => {
     async function loadUserAndChats() {
@@ -61,6 +62,29 @@ export function MessagesMenu() {
     loadUserAndChats()
   }, [])
 
+  async function handleStartNewChat() {
+    const token = localStorage.getItem('authToken')
+
+    try {
+      const response = await api.post('/chats', 
+        { 
+          contact_id: contactId 
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      )
+
+      const newChat = response.data
+      setChats(prevChats => [...prevChats, newChat])
+      onSelectChat(newChat.id)
+    } catch (error) {
+      console.error('Error creating chat:', error)
+    }
+  }
+
   if (isLoading || !currentUser) {
     return (
       <div className="w-full h-full flex items-center justify-center">
@@ -85,8 +109,8 @@ export function MessagesMenu() {
               <DialogDescription className='font-outfit'>Insert a valid number to start an chat</DialogDescription>
             </DialogHeader>
             <div className='w-full flex flex-col items-center p-2 space-y-4'>
-              <input className='w-full p-2 rounded-sm border-none outline-none ring-2 ring-black font-outfit text-black/75 transition-all duration-200 placeholder:text-black/60 focus:ring-sky-500' placeholder='Insert the contact number...' />
-              <button className="w-full flex flex-row justify-center space-x-2 p-2 bg-sky-400 rounded-md shadow-md transition-all duration-500 hover:scale-105">
+              <input value={contactId} onChange={(e) => setContactId(e.target.value)} className='w-full p-2 rounded-sm border-none outline-none ring-2 ring-black font-outfit text-black/75 transition-all duration-200 placeholder:text-black/60 focus:ring-sky-500' placeholder='Insert the contact number...' />
+              <button onClick={handleStartNewChat} className="w-full flex flex-row justify-center space-x-2 p-2 bg-sky-400 rounded-md shadow-md transition-all duration-500 hover:scale-105">
                 <MessageSquareShare className="w-6 h-6 stroke-white" />
                 <span className="text-white text-base font-outfit font-semibold">Open Chat</span>
               </button>
@@ -106,6 +130,7 @@ export function MessagesMenu() {
               <UserCard
                 key={chat.id}
                 chatInfo={chat}
+                onClick={() => onSelectChat(chat.id)}
               />
             ))}
             <ChatButton />

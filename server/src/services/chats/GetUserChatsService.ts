@@ -9,8 +9,12 @@ export class GetUserChatsService {
     try {
 
       const user = await prisma.users.findUnique({
-        where: { id: userId },
-        select: { contact_id: true }
+        where: { 
+          id: userId 
+        },
+        select: { 
+          contact_id: 
+          true }
       })
 
       if (!user) {
@@ -19,8 +23,12 @@ export class GetUserChatsService {
       const chats = await prisma.chats.findMany({
         where: {
           OR: [
-            { from_contact: user.contact_id },
-            { to_contact: user.contact_id }
+            { 
+              from_contact: user.contact_id 
+            },
+            { 
+              to_contact: user.contact_id 
+            }
           ]
         },
         include: {

@@ -1,21 +1,21 @@
 import { useState, useEffect } from 'react'
 import { Socket, io } from 'socket.io-client'
-import { ChatFooter } from "./ChatFooter"
-import { ChatHeader } from "./ChatHeader"
-import { ChatMain } from "./ChatMain"
-import { api } from "@/services/api"
+import { ChatFooter } from './ChatFooter'
+import { ChatHeader } from './ChatHeader'
+import { ChatMain } from './ChatMain'
+import { api } from '@/services/api'
 import ChatTemplate from './ChatTemplate'
 
 interface Message {
-  id: string
-  content: string
-  send_by: string
-  send_at: string
+  id: string,
+  content: string,
+  send_by: string,
+  send_at: string,
 }
 
 interface ChatContainerProps {
-  user_id: string
-  chat_id: string
+  user_id: string,
+  chat_id: string,
 }
 
 export function ChatContainer({ user_id, chat_id }: ChatContainerProps) {
@@ -24,13 +24,13 @@ export function ChatContainer({ user_id, chat_id }: ChatContainerProps) {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const baseUrl = import.meta.env.VITE_API_BASE_URL
-  
+  const wsURL = import.meta.env.VITE_WS_BASE_URL
+
   if (!chat_id) {
     return <ChatTemplate />
   }
-  
-  useEffect(() => {
 
+  useEffect(() => {
     if (!baseUrl) {
       setError('API URL not configured')
       setIsLoading(false)
@@ -44,33 +44,48 @@ export function ChatContainer({ user_id, chat_id }: ChatContainerProps) {
       return
     }
 
-    const socket = io(baseUrl, {
-      auth: {
-        token
-      },
+    console.log('Connecting to socket server:', wsURL)
+
+    const socket = io(wsURL, {
+      auth: { token },
+      transports: ['websocket', 'polling'],
       reconnection: true,
       reconnectionAttempts: 5,
-      reconnectionDelay: 1000
+      reconnectionDelay: 1000,
+      timeout: 20000,
     })
 
     setSocket(socket)
 
     socket.on('connect', () => {
-      console.log('Socket connected')
+      console.log('Socket connected successfully')
       socket.emit('user_connected', user_id)
+      socket.emit('join_chat', chat_id)
+    })
+
+    socket.on('auth_error', (err) => {
+      console.error('Authentication error:', err.message)
+      setError('Authentication failed. Please login again.')
+      socket.disconnect()
     })
 
     socket.on('connect_error', (error) => {
       console.error('Socket connection error:', error)
       setError('Failed to connect to chat server')
+      console.error(error.message)
+    })
+
+    socket.on('disconnect', (reason) => {
+      console.warn('Socket disconnected:', reason)
+      if (reason === 'io server disconnect') {
+        setError('Disconnected from chat server. Please try reconnecting.')
+      }
     })
 
     async function loadMessages() {
       try {
         const response = await api.get(`/chat/${chat_id}/messages`, {
-          headers: { 
-            Authorization: `Bearer ${token}` 
-          }
+          headers: { Authorization: `Bearer ${token}` },
         })
         setMessages(response.data)
         setError(null)
@@ -85,7 +100,7 @@ export function ChatContainer({ user_id, chat_id }: ChatContainerProps) {
     loadMessages()
 
     socket.on('receive_message', (message: Message) => {
-      setMessages(prev => [...prev, message])
+      setMessages((prev) => [...prev, message])
     })
 
     socket.on('message_status', (status: { status: string, messageId?: string, error?: string }) => {
@@ -98,7 +113,7 @@ export function ChatContainer({ user_id, chat_id }: ChatContainerProps) {
     return () => {
       socket.disconnect()
     }
-  }, [chat_id, user_id, baseUrl])
+  }, [wsURL, chat_id, user_id])
 
   function sendMessage(content: string) {
     if (!socket || !content.trim()) return
@@ -108,7 +123,7 @@ export function ChatContainer({ user_id, chat_id }: ChatContainerProps) {
       send_by: user_id,
       chat_id: chat_id,
     }
-    
+
     socket.emit('send_message', messageData)
   }
 
@@ -119,11 +134,7 @@ export function ChatContainer({ user_id, chat_id }: ChatContainerProps) {
   return (
     <main className="w-full h-full flex flex-col bg-white select-none">
       <ChatHeader />
-      <ChatMain 
-        messages={messages} 
-        isLoading={isLoading} 
-        currentUserId={user_id} 
-      />
+      <ChatMain messages={messages} isLoading={isLoading} currentUserId={user_id} />
       <ChatFooter onSendMessage={sendMessage} />
     </main>
   )
