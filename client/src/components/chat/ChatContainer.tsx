@@ -93,7 +93,13 @@ export function ChatContainer({ user_id, chat_id }: ChatContainerProps) {
         const response = await api.get(`/chat/${chat_id}/messages`, {
           headers: { Authorization: `Bearer ${token}` },
         })
-        setMessages(response.data)
+    
+        const validatedMessages = response.data.map((msg: Message) => ({
+          ...msg,
+          send_by: String(msg.send_by), 
+        }))
+    
+        setMessages(validatedMessages)
         setError(null)
       } catch (error) {
         console.error('Error loading messages:', error)
@@ -106,7 +112,22 @@ export function ChatContainer({ user_id, chat_id }: ChatContainerProps) {
     loadMessages()
 
     socket.on('receive_message', (message: Message) => {
-      setMessages((prev) => [...prev, message])
+      console.log('Received message:', message)
+    
+      setMessages((prev) => {
+        const messageExists = prev.some(m => m.id === message.id)
+        const isTempMessage = prev.some(m => m.id.startsWith('temp-') && m.content === message.content)
+    
+        if (messageExists) return prev
+    
+        if (isTempMessage) {
+          return prev.map(m => 
+            m.id.startsWith('temp-') && m.content === message.content ? message : m
+          )
+        }
+    
+        return [...prev, message]
+      })
     })
 
     socket.on('message_status', (status: { status: string, messageId?: string, error?: string }) => {
@@ -123,14 +144,25 @@ export function ChatContainer({ user_id, chat_id }: ChatContainerProps) {
 
   function sendMessage(content: string) {
     if (!socket || !content.trim()) return
-
-    const messageData = {
+  
+    const tempMessage: Message = {
+      id: `temp-${Date.now()}`,
       content,
       send_by: user_id,
-      chat_id: chat_id,
+      send_at: new Date().toISOString()
     }
-
-    socket.emit('send_message', messageData)
+  
+    setMessages(prev => [...prev, tempMessage])
+  
+    socket.emit('send_message', { content, send_by: user_id, chat_id }, (response: { status: string, message: Message }) => {
+      if (response.status === 'success') {
+        setMessages(prev => prev.map(msg => 
+          msg.id === tempMessage.id ? response.message : msg
+        ))
+      } else {
+        console.error('Failed to send message:', response)
+      }
+    })
   }
 
   if (error) {

@@ -32,7 +32,7 @@ export class WebSocketServer {
         const userId = decoded.id
         socket.data.userId = userId
 
-        this.handleAuthenticatedConnection(socket, userId, onlineUsers, userConnectionController, createMessageController)
+        this.handleAuthenticatedConnection(socket, userId, onlineUsers, userConnectionController, createMessageController, io)
       } catch (err: any) {
         console.error(`JWT verification failed for socket ${socket.id}:`, err.message)
         socket.emit("auth_error", { message: "Invalid token" })
@@ -58,7 +58,8 @@ export class WebSocketServer {
     userId: string,
     onlineUsers: Map<string, string>,
     userConnectionController: UserConnectionController,
-    createMessageController: CreateMessageController
+    createMessageController: CreateMessageController,
+    io: Server
   ) {
     console.log(`Authenticated user ${userId} connected with socket ${socket.id}`)
     onlineUsers.set(userId, socket.id)
@@ -81,7 +82,25 @@ export class WebSocketServer {
           ...messageData,
           send_by: userId
         }
-        await createMessageController.handle(socket, completeMessageData)
+        const savedMessage = await createMessageController.handle(socket, completeMessageData)
+
+
+        if (!savedMessage) {
+          console.error("Saved message is undefined")
+          socket.emit("message_status", {
+            status: "error",
+            error: "Message could not be saved",
+          })
+          return
+        }
+
+        io.to(messageData.chat_id).emit("receive_message", {
+          id: savedMessage.id,
+          content: savedMessage.content,
+          send_by: savedMessage.send_by,
+          send_at: savedMessage.send_at
+        })
+
         console.log("Message processed successfully")
       } catch (error) {
         console.error("Error processing message:", error)

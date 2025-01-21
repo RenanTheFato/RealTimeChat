@@ -21,7 +21,8 @@ export function ChatMain({ messages, isLoading, currentUserId }: ChatMainProps) 
   return (
     <main className="flex-1 bg-off-white overflow-y-auto p-2 space-y-2 scroll-bar md:space-y-1">
       {messages.map((message, index) => {
-        const isSent = message.send_by === currentUserId
+        const isSent = String(message.send_by) === String(currentUserId)
+        console.log('Message:', message, 'Current User ID:', currentUserId)
         const showTail = index === 0 || messages[index - 1]?.send_by !== message.send_by
 
         return (

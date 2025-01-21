@@ -32,6 +32,8 @@ export class CreateMessageController {
 
         socket.to(messages.chat_id).emit('recived_message', message)
       }
+
+      return message
     } catch (error) {
       console.error('Error sending message:', error)
       socket.emit('message_status', {

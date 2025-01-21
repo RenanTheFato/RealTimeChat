@@ -24,7 +24,7 @@ export default function App() {
             Authorization: `Bearer ${token}`
           }
         })
-        setCurrentUser(response.data)
+        setCurrentUser(response.data.user)
       } catch (error) {
         console.error('Error loading user:', error)
       }
