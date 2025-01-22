@@ -62,7 +62,13 @@ export class GetUserChatsService {
         }
       })
 
-      return chats.map(chat => {
+      const sortedChats = chats.sort((a, b) => {
+        const aTime = a.messages[0]?.send_at || a.created_at
+        const bTime = b.messages[0]?.send_at || b.created_at
+        return new Date(bTime).getTime() - new Date(aTime).getTime()
+      })
+
+      return sortedChats.map(chat => {
         const isFromUser = chat.from_contact === user.contact_id
         const otherUser = isFromUser ? chat.to_user : chat.from_user
 

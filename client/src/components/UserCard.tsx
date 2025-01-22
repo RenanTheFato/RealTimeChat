@@ -1,4 +1,5 @@
 import { User2 } from "lucide-react"
+import { useState, useEffect } from 'react'
 
 interface ChatInfo {
   id: string
@@ -18,16 +19,39 @@ interface UserCardProps {
 }
 
 export function UserCard({ chatInfo, onClick }: UserCardProps) {
+  const [timeString, setTimeString] = useState('')
+
   function formatMessageTime(dateString: string) {
     const date = new Date(dateString)
     const now = new Date()
-    const diffHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60))
+    const diffMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60))
+    const diffHours = Math.floor(diffMinutes / 60)
 
+    if (diffHours < 1) {
+      if (diffMinutes === 0) {
+        return 'just now'
+      }
+      return `${diffMinutes}m ago`
+    }
     if (diffHours < 24) {
       return `${diffHours}h ago`
     }
     return date.toLocaleDateString()
   }
+
+  useEffect(() => {
+    function updateTime() {
+      const timeToShow = chatInfo.last_message
+        ? formatMessageTime(chatInfo.last_message.send_at)
+        : formatMessageTime(chatInfo.last_seen_at)
+      setTimeString(timeToShow)
+    }
+
+    updateTime()
+
+    const interval = setInterval(updateTime, 60000)
+    return () => clearInterval(interval)
+  }, [chatInfo])
 
   return (
     <div className="mx-2" onClick={() => onClick?.(chatInfo.id)}>
@@ -51,10 +75,7 @@ export function UserCard({ chatInfo, onClick }: UserCardProps) {
               {chatInfo.last_message?.content || 'No messages yet'}
             </span>
             <span className="text-xs text-black/50 px-2">
-              {chatInfo.last_message
-                ? formatMessageTime(chatInfo.last_message.send_at)
-                : formatMessageTime(chatInfo.last_seen_at)
-              }
+              {timeString}
             </span>
           </div>
         </div>

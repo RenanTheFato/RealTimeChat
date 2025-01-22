@@ -5,14 +5,14 @@ export class UserConnectionController {
   async handleConnect(socket: Socket, userId: string, onlineUsers: Map<string, string>) {
     onlineUsers.set(userId, socket.id)
       
-    // await prisma.users.update({
-    //   where: {
-    //     id: userId
-    //   },
-    //   data: {
-    //     last_seen_at: new Date()
-    //   }
-    // })
+    await prisma.users.update({
+      where: {
+        id: userId
+      },
+      data: {
+        last_seen_at: new Date()
+      }
+    })
 
     socket.broadcast.emit('user_online', userId)
   }
