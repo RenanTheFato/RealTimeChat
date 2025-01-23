@@ -1,7 +1,7 @@
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog'
 import { useState, useEffect } from 'react'
 import { MessageSquarePlus, MessageSquareShare } from "lucide-react"
-import { UserCard } from "./UserCard"
+import { UserCard } from "../users/UserCard"
 import { api } from "@/services/api"
 
 interface Chat {

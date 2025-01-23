@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { ChatContainer } from "./components/chat/ChatContainer"
-import { MessagesMenu } from "./components/MessagesMenu"
+import { MessagesMenu } from "./components/messages/MessagesMenu"
 import { api } from "./services/api"
 import ChatTemplate from "./components/chat/ChatTemplate"
 

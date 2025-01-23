@@ -11,6 +11,12 @@ interface Message {
   content: string,
   send_by: string,
   send_at: string,
+
+}
+interface User {
+  id: string;
+  name: string;
+  last_online: string;
 }
 
 interface ChatContainerProps {
@@ -21,8 +27,10 @@ interface ChatContainerProps {
 export function ChatContainer({ user_id, chat_id }: ChatContainerProps) {
   const [socket, setSocket] = useState<Socket | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
+  const [userDestination, setUserDestination] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
   const baseUrl = import.meta.env.VITE_API_BASE_URL
   const wsURL = import.meta.env.VITE_WS_BASE_URL
 
@@ -46,6 +54,21 @@ export function ChatContainer({ user_id, chat_id }: ChatContainerProps) {
     }
 
     console.log('Connecting to socket server:', wsURL)
+
+    async function loadOtherUser() {
+      try {
+        const response = await api.get(`/chat/${chat_id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setUserDestination(response.data);
+      } catch (err) {
+        console.error('Error loading user data:', err);
+        setError('Failed to load user data');
+      }
+    }
+
+    loadOtherUser();
+
 
     const socket = io(wsURL, {
       auth: { token },
@@ -171,7 +194,7 @@ export function ChatContainer({ user_id, chat_id }: ChatContainerProps) {
 
   return (
     <main className="w-full h-full flex flex-col bg-white select-none">
-      <ChatHeader />
+      <ChatHeader userDestination={userDestination}/>
       <ChatMain messages={messages} isLoading={isLoading} currentUserId={user_id} />
       <ChatFooter onSendMessage={sendMessage} />
     </main>
