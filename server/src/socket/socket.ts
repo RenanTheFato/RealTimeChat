@@ -84,7 +84,6 @@ export class WebSocketServer {
         }
         const savedMessage = await createMessageController.handle(socket, completeMessageData)
 
-
         if (!savedMessage) {
           console.error("Saved message is undefined")
           socket.emit("message_status", {

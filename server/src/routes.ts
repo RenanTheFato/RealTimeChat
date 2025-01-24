@@ -6,6 +6,7 @@ import { AuthMiddleware } from "./middlewares/authenticate"
 import { GetUserChatsController } from "./controllers/chats/GetUserChatsController"
 import { GetMessagesController } from "./controllers/messages/GetMessagesController"
 import { CreateChatController } from "./controllers/chats/CreateChatController"
+import { GetChatController } from "./controllers/chats/GetChatController"
 
 export async function routes(fastify: FastifyInstance) {
   fastify.post("/singup", async(req: FastifyRequest, rep: FastifyReply) => {
@@ -23,6 +24,10 @@ export async function routes(fastify: FastifyInstance) {
   fastify.get("/user", { preHandler: AuthMiddleware }, async(req: FastifyRequest, rep: FastifyReply) => {
     return new GetUserController().handle(req, rep)
   }) 
+
+  fastify.get("/chat/:chatId", { preHandler: AuthMiddleware }, async(req: FastifyRequest, rep: FastifyReply) => {
+    return new GetChatController().handle(req, rep)
+  })
 
   fastify.get("/chat/:chatId/messages", { preHandler: AuthMiddleware }, async(req: FastifyRequest, rep: FastifyReply) => {
     return new GetMessagesController().handle(req, rep)

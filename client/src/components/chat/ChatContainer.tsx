@@ -29,6 +29,7 @@ export function ChatContainer({ user_id, chat_id }: ChatContainerProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [userDestination, setUserDestination] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [isUserOnline, setIsUserOnline] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const baseUrl = import.meta.env.VITE_API_BASE_URL
@@ -58,17 +59,41 @@ export function ChatContainer({ user_id, chat_id }: ChatContainerProps) {
     async function loadOtherUser() {
       try {
         const response = await api.get(`/chat/${chat_id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setUserDestination(response.data);
+          headers: { 
+            Authorization: `Bearer ${token}` 
+          },
+        })
+        setUserDestination(response.data)
       } catch (err) {
-        console.error('Error loading user data:', err);
-        setError('Failed to load user data');
+        console.error('Error loading user data:', err)
+        setError('Failed to load user data')
+      }
+    }
+    async function loadMessages() {
+      try {
+        const response = await api.get(`/chat/${chat_id}/messages`, {
+          headers: { 
+            Authorization: `Bearer ${token}` 
+          },
+        })
+    
+        const validatedMessages = response.data.map((msg: Message) => ({
+          ...msg,
+          send_by: String(msg.send_by), 
+        }))
+    
+        setMessages(validatedMessages)
+        setError(null)
+      } catch (error) {
+        console.error('Error loading messages:', error)
+        setError('Failed to load messages')
+      } finally {
+        setIsLoading(false)
       }
     }
 
-    loadOtherUser();
-
+    loadOtherUser()
+    loadMessages()
 
     const socket = io(wsURL, {
       auth: { token },
@@ -111,28 +136,17 @@ export function ChatContainer({ user_id, chat_id }: ChatContainerProps) {
       }
     })
 
-    async function loadMessages() {
-      try {
-        const response = await api.get(`/chat/${chat_id}/messages`, {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-    
-        const validatedMessages = response.data.map((msg: Message) => ({
-          ...msg,
-          send_by: String(msg.send_by), 
-        }))
-    
-        setMessages(validatedMessages)
-        setError(null)
-      } catch (error) {
-        console.error('Error loading messages:', error)
-        setError('Failed to load messages')
-      } finally {
-        setIsLoading(false)
+    socket.on('user_online', (userId: string) => {
+      if (userId === userDestination?.id) {
+        setIsUserOnline(true)
       }
-    }
+    })
 
-    loadMessages()
+    socket.on('user_offline', (userId: string) => {
+      if (userId === userDestination?.id) {
+        setIsUserOnline(false)
+      }
+    })
 
     socket.on('receive_message', (message: Message) => {
       console.log('Received message:', message)
@@ -194,7 +208,7 @@ export function ChatContainer({ user_id, chat_id }: ChatContainerProps) {
 
   return (
     <main className="w-full h-full flex flex-col bg-white select-none">
-      <ChatHeader userDestination={userDestination}/>
+      <ChatHeader userDestination={userDestination} isUserOnline={isUserOnline}/>
       <ChatMain messages={messages} isLoading={isLoading} currentUserId={user_id} />
       <ChatFooter onSendMessage={sendMessage} />
     </main>

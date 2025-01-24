@@ -18,10 +18,19 @@ export class UserConnectionController {
   }
 
   async handleDisconnect(socket: Socket, onlineUsers: Map<string, string>) {
-    const userId = [...onlineUsers.entries()]
-      .find(([_, socketId]) => socketId === socket.id)?.[0]
-    
+    const userId = socket.data.userId
+
+    console.log('Disconnecting user ID:', userId)
     if (userId) {
+      await prisma.users.update({
+        where: { 
+          id: userId 
+        },
+        data: { 
+          last_seen_at: new Date()
+        }
+      })
+  
       onlineUsers.delete(userId)
       socket.broadcast.emit('user_offline', userId)
     }
