@@ -13,6 +13,7 @@ model Users {
   name         String
   password     String
   last_seen_at DateTime @default(now())
+  status       String   @default("Offline")
   created_at   DateTime @default(now())
   updated_at   DateTime @updatedAt
 
